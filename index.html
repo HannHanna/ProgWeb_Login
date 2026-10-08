@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Principal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/login.css">
+    <style>
+        #sidebar { min-width: 250px; max-width: 250px; background: white; transition: all 0.3s; }
+        #content { width: 100%; background-color: var(--lila-light); }
+    </style>
+</head>
+<body class="d-flex flex-column vh-100">
+
+    <!-- Navbar superior -->
+    <nav class="navbar navbar-expand navbar-light bg-white shadow-sm px-3">
+        <button class="btn btn-outline-purple me-3" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+        <span class="navbar-brand mb-0 h1 text-purple fw-bold">PANEL DE CONTROL</span>
+        
+        <div class="collapse navbar-collapse justify-content-end">
+            <ul class="navbar-nav">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle fw-semibold text-dark" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                        <span id="nombreUsuarioDisplay">Usuario</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                        <li><a class="dropdown-item text-danger" href="#" id="btnSalir"><i class="fas fa-sign-out-alt me-2"></i>Salir del sistema</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="d-flex h-100">
+        <!-- Sidebar -->
+        <nav id="sidebar" class="border-end p-3 bg-white">
+            <ul class="list-unstyled components">
+                <li class="mb-2">
+                    <a href="#usuariosSubmenu" data-bs-toggle="collapse" class="dropdown-toggle text-decoration-none text-dark d-block p-2 rounded">
+                        <i class="fas fa-users me-2 text-purple"></i> Usuarios
+                    </a>
+                    <ul class="collapse list-unstyled ps-4 mt-1" id="usuariosSubmenu">
+                        <li><a href="#" id="menuCaptura" class="text-decoration-none text-muted d-block p-2 rounded small"><i class="fas fa-angle-right me-1 text-purple"></i> Captura</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Contenido Principal Dinámico -->
+        <div id="content" class="p-4 overflow-auto">
+            <div class="container-fluid">
+                
+                <!-- Vista 1: Pantalla de Bienvenida (Predeterminada al entrar) -->
+                <div id="vistaBienvenida" class="text-center mt-5">
+                    <div class="card shadow-sm border-0 p-5 rounded-4 mx-auto bg-white" style="max-width: 600px;">
+                        <h1 class="text-purple fw-bold m-0 text-uppercase">¡BIENVENIDO AL SISTEMA!</h1>
+                    </div>
+                </div>
+
+                <!-- Vista 2: Módulo de Captura (Oculto inicialmente, se muestra al hacer clic en Captura) -->
+                <div id="vistaCaptura" class="d-none">
+                    <h2 class="mb-4 text-purple fw-bold text-uppercase">MÓDULO DE CAPTURA DE ALUMNOS</h2>
+                    
+                    <div class="card shadow-sm border-0 p-4 rounded-4 bg-white" style="max-width: 600px;">
+                        <form id="formAlumno">
+                            <div class="mb-3">
+                                <label class="form-label">Nombre Completo</label>
+                                <input type="text" class="form-control" id="nombreAlumno" required placeholder="Nombre del alumno">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Correo Electrónico</label>
+                                <input type="email" class="form-control" id="correoAlumno" required placeholder="correo@ejemplo.com">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Número de Control (6 dígitos)</label>
+                                <input type="text" class="form-control" id="numControl" maxlength="6" required placeholder="Ej. 231610">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Edad</label>
+                                <input type="number" class="form-control" id="edadAlumno" required min="1" max="100" placeholder="Ej. 20">
+                            </div>
+                            <button type="submit" class="btn btn-purple text-white w-100 fw-semibold">Guardar y Validar</button>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Resultado / Edad -->
+    <div class="modal fade" id="modalEdad" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0">
+                <div class="modal-header bg-purple text-white">
+                    <h5 class="modal-title">Resultado de Registro</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <p id="mensajeModal" class="fs-5 fw-semibold mb-0"></p>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">Aceptar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts Bootstrap y Lógica -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/HannHanna/ProgWeb_Utileria@v1.0.0/js/utileria.js"></script>
+    <script>
+        // Cargar usuario en el Navbar
+        const usuarioActivo = localStorage.getItem('usuarioActivo') || 'Invitado';
+        document.getElementById('nombreUsuarioDisplay').textContent = usuarioActivo;
+
+        // Toggle Sidebar
+        document.getElementById('sidebarToggle').addEventListener('click', () => {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.style.display = sidebar.style.display === 'none' ? 'block' : 'none';
+        });
+
+        // Alternar entre vistas (Bienvenida y Captura) con el submenú
+        document.getElementById('menuCaptura').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('vistaBienvenida').classList.add('d-none');
+            document.getElementById('vistaCaptura').classList.remove('d-none');
+        });
+
+        // Cerrar sesión
+        document.getElementById('btnSalir').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('usuarioActivo');
+            window.location.href = 'login.html';
+        });
+
+        // Validaciones del formulario y Modal
+        document.getElementById('formAlumno').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const numControl = document.getElementById('numControl').value;
+            const edad = parseInt(document.getElementById('edadAlumno').value);
+
+            // Validar número de control de exactamente 6 dígitos
+            if (numControl.length !== 6 || isNaN(numControl)) {
+                alert('El número de control debe tener exactamente 6 dígitos.');
+                return;
+            }
+
+            // Validar mayoría de edad
+            const esMayor = edad >= 18 ? 'El alumno es MAYOR de edad.' : 'El alumno es MENOR de edad.';
+            document.getElementById('mensajeModal').textContent = `Registro guardado exitosamente. ${esMayor}`;
+            
+            const modal = new bootstrap.Modal(document.getElementById('modalEdad'));
+            modal.show();
+        });
+    </script>
+</body>
+</html>
